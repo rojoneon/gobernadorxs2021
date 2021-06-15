@@ -48,6 +48,53 @@ base_gobernadores <- read_csv(file = "./www/data/base_gobernadores.csv")
 glimpse(base_gobernadores)
 
 
+
+#####2019-2022
+glimpse(base_gobernadores)
+
+guber_alluvial2 <-
+  base_gobernadores %>% 
+  dplyr::select(`2022`,`2019`) %>% 
+  mutate( n=1) %>% 
+  group_by(`2022`,`2019`)  %>% 
+  summarise(n=sum(n))
+
+guber_alluvial2$`2022`=factor(guber_alluvial2$`2022`,
+                              levels = c("PRI", "PAN", "PRD", "PVEM", "MC", "MORENA", "INDEPENDIENTE", "PES"),
+                              labels = c("PRI", "PAN", "PRD", "PVEM", "MC", "MORENA", "INDEP.", "PES"))
+
+guber_alluvial2$`2019`=factor(guber_alluvial2$`2019`,
+                              levels = c("PRI", "PAN", "PRD", "PVEM", "MC", "MORENA", "INDEPENDIENTE", "PES"),
+                              labels = c("PRI", "PAN", "PRD", "PVEM", "MC", "MORENA", "INDEP.", "PES"))
+
+glimpse(guber_alluvial2)
+
+guber_alluvial2 %>% 
+  ggplot(aes(y = n, axis1 = `2019`, axis2 = `2022`,
+             fill = after_stat(stratum),
+             label = after_stat(stratum))) +
+  geom_flow(width = 1/12, alpha = .5) +
+  # geom_alluvium(
+  #   aes(fill = `2016`),
+  #   width = 1/12, alpha = .5) +
+  geom_stratum(width = 1/4, fill = "#F5F5F3", color = "#939486") +
+  geom_text(stat = "stratum", size = 4) +
+  scale_x_discrete(limits = c("2019", "2022"),
+                   expand = c(.05, .05)) +
+  scale_y_continuous(breaks = seq(0,32,4)) +
+  scale_fill_manual(values = c(
+    "#E63946", "#118AB2", "#E9C46A", "#A8DADC", "#FFBF69", "#6A040F", "#ADB5BD", "#DEE2FF")) +
+  theme_g() +
+  theme(legend.position = "none") +
+  ggtitle("Gubernaturas en México por partido") +
+  labs(y = "Gubernaturas") 
+
+
+ggsave(filename = "Alluvial_2019_2022.png", path= "./www/plots/",
+       dpi = 320, width = 8.5, height = 7.5,
+       bg = "transparent")
+
+
 #####2016-2019-2022
 glimpse(base_gobernadores)
 
@@ -279,6 +326,7 @@ guber_alluvial2$`1986`=factor(guber_alluvial2$`1986`,
 
 glimpse(guber_alluvial2)
 
+g <-
 guber_alluvial2 %>% 
   ggplot(aes(y = n, axis1 = `1989`, axis2 = `1992`, axis3 = `1995`, axis4 = `1998`,
                     axis5 = `2001`, axis6 = `2004`, axis7 = `2007`, axis8 = `2010`, axis9 = `2013`,
@@ -308,8 +356,15 @@ guber_alluvial2 %>%
         axis.text.x = element_text(size = 16, colour = "black"),
         axis.text.y = element_text(size = 12)) 
 
-ggsave(filename = "Alluvial_1989_2022.png", path= "./www/plots/",
+# library(plotly)
+# ggplotly(g)
+g
+
+ggsave(g, filename = "Alluvial_1989_2022.png", path= "./www/plots/",
        dpi = 320, width = 18, height = 7,
        bg = "transparent")
 
+ggsave(g, filename = "Alluvial_1989_2022.svg", path= "./www/plots/",
+       dpi = 320, width = 18, height = 7,
+       bg = "transparent")
 
